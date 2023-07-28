@@ -19,6 +19,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/unrolled/secure v1.13.0
 	golang.org/x/exp v0.0.0-20230725093048-515e97ebf090
+	golang.org/x/net v0.12.0
 )
 
 require (
@@ -38,6 +39,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
+	github.com/jackc/puddle/v2 v2.2.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.15.15 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
@@ -63,7 +65,6 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.11.0 // indirect
-	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/oauth2 v0.10.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
