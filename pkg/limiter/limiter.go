@@ -31,7 +31,7 @@ func NewLimiter(rdb *redis.Client) (*Limiter, error) {
 	return &Limiter{limiter}, nil
 }
 
-func (l *Limiter) Allow(ctx context.Context, key string, limit redis_rate.Limit) error {
+func (l *Limiter) AllowUser(ctx context.Context, key string, limit redis_rate.Limit) error {
 	skip := ctx.Value(ctxKeySkip)
 	if v, ok := skip.(bool); ok && v {
 		return nil
