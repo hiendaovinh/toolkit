@@ -4,10 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/hiendaovinh/toolkit/pkg/auth"
 	"github.com/hiendaovinh/toolkit/pkg/errorx"
+	"github.com/hiendaovinh/toolkit/pkg/limiter"
 	"github.com/labstack/echo/v4"
 )
 
@@ -80,4 +83,38 @@ func ValidateStruct(c echo.Context, v ValidatorStruct, s any) error {
 	}
 
 	return fmt.Errorf("invalid %s", strings.Join(fields, ", "))
+}
+
+func RestAbort(c echo.Context, v any, err error) error {
+	if errors.Is(err, auth.ErrInvalidSession) {
+		return Abort(c, errorx.Wrap(err, errorx.Authn))
+	}
+
+	if errors.Is(err, limiter.ErrRateLimited) {
+		return Abort(c, errorx.Wrap(err, errorx.RateLimiting))
+	}
+
+	if _, ok := err.(*errorx.Error); ok {
+		return Abort(c, err)
+	}
+
+	if err != nil {
+		return Abort(c, errorx.Wrap(err, errorx.Service))
+	}
+
+	return Abort(c, v)
+}
+
+func QueryParamInt(c echo.Context, name string, val int) int {
+	v := c.QueryParam(name)
+	if v == "" {
+		return val
+	}
+
+	i, err := strconv.Atoi(v)
+	if err != nil {
+		return val
+	}
+
+	return i
 }

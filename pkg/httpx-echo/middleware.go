@@ -13,6 +13,7 @@ import (
 	"github.com/hiendaovinh/toolkit/pkg/auth"
 	"github.com/hiendaovinh/toolkit/pkg/errorx"
 	"github.com/hiendaovinh/toolkit/pkg/jwtx"
+	"github.com/hiendaovinh/toolkit/pkg/limiter"
 	"github.com/labstack/echo/v4"
 )
 
@@ -102,6 +103,17 @@ func CaptchaValid(secret string, score float64, action string) echo.MiddlewareFu
 				return Abort(c, errorx.Wrap(errors.New("captcha failed"), errorx.Authz))
 			}
 
+			return next(c)
+		}
+	}
+}
+
+func DisableLimiter() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			ctx := c.Request().Context()
+			ctx = limiter.Skip(ctx)
+			c.SetRequest(c.Request().WithContext(ctx))
 			return next(c)
 		}
 	}
