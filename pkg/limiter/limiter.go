@@ -49,3 +49,21 @@ func (l *Limiter) AllowUser(ctx context.Context, key string, limit redis_rate.Li
 
 	return nil
 }
+
+func (l *Limiter) Allow(ctx context.Context, key string, limit redis_rate.Limit) error {
+	skip := ctx.Value(ctxKeySkip)
+	if v, ok := skip.(bool); ok && v {
+		return nil
+	}
+
+	res, err := l.limiter.Allow(ctx, key, limit)
+	if err != nil {
+		return err
+	}
+
+	if res.Allowed <= 0 {
+		return ErrRateLimited
+	}
+
+	return nil
+}
