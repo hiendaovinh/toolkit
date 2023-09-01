@@ -56,10 +56,6 @@ func Authn(guard Guard) echo.MiddlewareFunc {
 	}
 }
 
-type CaptchaPayload struct {
-	Captcha string `json:"captcha"`
-}
-
 type CaptchaVerifyResponse struct {
 	Success     bool      `json:"success"`
 	Score       float64   `json:"score"`
@@ -69,10 +65,71 @@ type CaptchaVerifyResponse struct {
 	ErrorCodes  []string  `json:"error-codes"`
 }
 
-func CaptchaValid(secret string, score float64, action string) echo.MiddlewareFunc {
+type CaptchaRequirement struct {
+	Secret         string
+	Score          float64
+	Action         string
+	FallbackSecret string
+	Bypass         string
+}
+
+type CaptchaPayload struct {
+	Captcha         string `json:"captcha"`
+	CaptchaFallback string `json:"captcha_fallback"`
+}
+
+func CaptchaValid(requirement CaptchaRequirement) echo.MiddlewareFunc {
+	recaptchaV3 := func(next echo.HandlerFunc, c echo.Context, payload CaptchaPayload) error {
+		resp, err := http.PostForm("https://www.google.com/recaptcha/api/siteverify", url.Values{
+			"secret":   {requirement.Secret},
+			"response": {payload.Captcha},
+		})
+		if err != nil {
+			return Abort(c, errorx.Wrap(err, errorx.Service))
+		}
+		defer resp.Body.Close()
+
+		var body CaptchaVerifyResponse
+		if err = json.NewDecoder(resp.Body).Decode(&body); err != nil {
+			return Abort(c, errorx.Wrap(err, errorx.Service))
+		}
+
+		if requirement.Action != "" && body.Action != requirement.Action {
+			return Abort(c, errorx.Wrap(errors.New("captcha failed"), errorx.Authz))
+		}
+
+		if !body.Success || body.Score < requirement.Score {
+			return Abort(c, errorx.Wrap(errors.New("captcha failed"), errorx.Authz))
+		}
+
+		return next(c)
+	}
+
+	recaptchaV2 := func(next echo.HandlerFunc, c echo.Context, payload CaptchaPayload) error {
+		resp, err := http.PostForm("https://www.google.com/recaptcha/api/siteverify", url.Values{
+			"secret":   {requirement.FallbackSecret},
+			"response": {payload.CaptchaFallback},
+		})
+		if err != nil {
+			return Abort(c, errorx.Wrap(err, errorx.Service))
+		}
+		defer resp.Body.Close()
+
+		var body CaptchaVerifyResponse
+		if err = json.NewDecoder(resp.Body).Decode(&body); err != nil {
+			return Abort(c, errorx.Wrap(err, errorx.Service))
+		}
+
+		if !body.Success {
+			return Abort(c, errorx.Wrap(errors.New("fallback captcha failed"), errorx.Captcha))
+		}
+
+		return next(c)
+	}
+
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			if secret == "" {
+			if requirement.Secret == "" {
 				return Abort(c, errorx.Wrap(errors.New("missing captcha secret"), errorx.Service))
 			}
 
@@ -81,29 +138,11 @@ func CaptchaValid(secret string, score float64, action string) echo.MiddlewareFu
 				return Abort(c, errorx.Wrap(err, errorx.Invalid))
 			}
 
-			resp, err := http.PostForm("https://www.google.com/recaptcha/api/siteverify", url.Values{
-				"secret":   {secret},
-				"response": {payload.Captcha},
-			})
-			if err != nil {
-				return Abort(c, errorx.Wrap(err, errorx.Service))
-			}
-			defer resp.Body.Close()
-
-			var body CaptchaVerifyResponse
-			if err = json.NewDecoder(resp.Body).Decode(&body); err != nil {
-				return Abort(c, errorx.Wrap(err, errorx.Service))
+			if payload.CaptchaFallback != "" {
+				return recaptchaV2(next, c, payload)
 			}
 
-			if action != "" && body.Action != action {
-				return Abort(c, errorx.Wrap(errors.New("captcha failed"), errorx.Authz))
-			}
-
-			if !body.Success || body.Score < score {
-				return Abort(c, errorx.Wrap(errors.New("captcha failed"), errorx.Authz))
-			}
-
-			return next(c)
+			return recaptchaV3(next, c, payload)
 		}
 	}
 }
