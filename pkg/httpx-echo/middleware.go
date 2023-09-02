@@ -1,9 +1,11 @@
 package httpx
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -133,10 +135,17 @@ func CaptchaValid(requirement CaptchaRequirement) echo.MiddlewareFunc {
 				return Abort(c, errorx.Wrap(errors.New("missing captcha secret"), errorx.Service))
 			}
 
+			var buf bytes.Buffer
+			tee := io.TeeReader(c.Request().Body, &buf)
+
+			c.Request().Body = io.NopCloser(tee)
+
 			var payload CaptchaPayload
 			if err := c.Bind(&payload); err != nil {
 				return Abort(c, errorx.Wrap(err, errorx.Invalid))
 			}
+
+			c.Request().Body = io.NopCloser(&buf)
 
 			if payload.CaptchaFallback != "" {
 				return recaptchaV2(next, c, payload)
