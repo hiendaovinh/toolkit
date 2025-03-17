@@ -1,4 +1,4 @@
-package auth_test
+package guard_test
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/MicahParks/keyfunc"
-	"github.com/hiendaovinh/toolkit/pkg/auth"
+	"github.com/hiendaovinh/toolkit/pkg/guard"
 	"github.com/ory/ladon"
 	"github.com/stretchr/testify/assert"
 )
@@ -62,7 +62,7 @@ func beforeEach(t *testing.T) *test {
 
 func TestGuardAuthz(t *testing.T) {
 	test := beforeEach(t)
-	guard, err := auth.NewGuard(test.authn, test.authz)
+	guard, err := guard.NewGuard(test.authn, test.authz)
 	assert.NoError(t, err)
 
 	sub := "foo"

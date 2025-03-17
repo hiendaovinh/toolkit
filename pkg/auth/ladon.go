@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"context"
+
 	"github.com/ory/ladon"
 	manager "github.com/ory/ladon/manager/memory"
 )
@@ -11,7 +13,7 @@ func NewLadon(policies ladon.Policies) (*ladon.Ladon, error) {
 	}
 
 	for _, pol := range policies {
-		err := warden.Manager.Create(pol)
+		err := warden.Manager.Create(context.TODO(), pol)
 		if err != nil {
 			return nil, err
 		}

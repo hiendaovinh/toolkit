@@ -14,7 +14,7 @@ require (
 	github.com/jackc/pgx/v5 v5.4.2
 	github.com/labstack/echo/v4 v4.11.1
 	github.com/ory/hydra-client-go v1.11.8
-	github.com/ory/ladon v1.2.0
+	github.com/ory/ladon v1.3.0
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/segmentio/encoding v0.3.6
 	github.com/stretchr/testify v1.8.4
@@ -52,7 +52,6 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/ory/pagination v0.0.1 // indirect
-	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
