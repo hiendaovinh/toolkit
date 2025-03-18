@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/ory/ladon"
+	"go.uber.org/zap"
 )
 
 type Kind uint8
@@ -24,6 +25,8 @@ const (
 	Captcha
 	Database
 	Service
+	TimedOut
+	Maintenance
 )
 
 func (k Kind) String() string {
@@ -48,6 +51,10 @@ func (k Kind) String() string {
 		return "database-query"
 	case Service:
 		return "internal-service-failure"
+	case TimedOut:
+		return "timed-out"
+	case Maintenance:
+		return "maintenance"
 	}
 
 	return "unknown"
@@ -71,6 +78,10 @@ func (k Kind) HTTPStatus() int {
 		return http.StatusForbidden
 	case Database:
 		return http.StatusInternalServerError
+	case TimedOut:
+		return http.StatusGatewayTimeout
+	case Maintenance:
+		return http.StatusServiceUnavailable
 	}
 
 	return http.StatusInternalServerError
@@ -101,6 +112,11 @@ func (e *Error) Code() string {
 
 func (e *Error) Status() int {
 	return e.kind.HTTPStatus()
+}
+
+func WithLog(logger *zap.SugaredLogger, err error, extras ...interface{}) error {
+	logger.Error(err, extras)
+	return err
 }
 
 func Wrap(err error, kind Kind) *Error {

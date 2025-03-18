@@ -22,6 +22,7 @@ require (
 	github.com/segmentio/encoding v0.4.1
 	github.com/stretchr/testify v1.10.0
 	github.com/unrolled/secure v1.17.0
+	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20230725093048-515e97ebf090
 	golang.org/x/net v0.37.0
 )
@@ -67,6 +68,7 @@ require (
 	github.com/vmihailenco/go-tinylfu v0.2.2 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/arch v0.15.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/oauth2 v0.10.0 // indirect
