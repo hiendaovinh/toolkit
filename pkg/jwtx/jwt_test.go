@@ -8,8 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/MicahParks/jwkset"
-	"github.com/MicahParks/keyfunc/v3"
 	"github.com/hiendaovinh/toolkit/pkg/jwtx"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/exp/slices"
@@ -22,7 +20,7 @@ func TestIssueToken(t *testing.T) {
 	audience := []string{"audience"}
 	scopes := []string{"foo", "bar"}
 
-	seed := int64(42)
+	seed := int64(42) // Deterministic seed for testing.
 	randSource := rand.New(rand.NewSource(seed))
 	randReader := rand.New(randSource)
 
@@ -46,17 +44,11 @@ func TestIssueToken(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, m1, m2)
 
-	store := jwkset.NewMemoryStorage()
-	err = store.KeyWrite(context.Background(), jwk)
+	_, jwks, err := a.GenerateKeySet(context.Background())
 	assert.NoError(t, err)
 
 	_, tokenStr, err := a.IssueToken(context.Background(), subject, audience, scopes)
 	assert.Equal(t, err, nil, "should be successful")
-
-	jwks, err := keyfunc.New(keyfunc.Options{
-		Storage: store,
-	})
-	assert.NoError(t, err)
 
 	_, claims, err := jwtx.ValidateToken(context.Background(), tokenStr, jwks.Keyfunc)
 	assert.Equal(t, err, nil, "should be successful")

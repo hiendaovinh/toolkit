@@ -5,11 +5,11 @@ import (
 	"crypto/ed25519"
 	"crypto/sha256"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"time"
 
 	"github.com/MicahParks/jwkset"
+	"github.com/MicahParks/keyfunc/v3"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
@@ -83,20 +83,39 @@ func (g *Authority) PublicJWK(ctx context.Context) (jwkset.JWK, error) {
 		Metadata: metadata,
 	}
 
-	foo, err := jwkset.NewJWKFromKey(g.pub, options)
-	return foo, err
+	return jwkset.NewJWKFromKey(g.pub, options)
+}
+
+func (g *Authority) GenerateKeySet(ctx context.Context) (*jwkset.MemoryJWKSet, keyfunc.Keyfunc, error) {
+	set := jwkset.NewMemoryStorage()
+
+	jwk, err := g.PublicJWK(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	err = set.KeyWrite(ctx, jwk)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	jwks, err := keyfunc.New(keyfunc.Options{
+		Storage: set,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return set, jwks, nil
 }
 
 func (g *Authority) PublicJWKS(ctx context.Context) ([]byte, error) {
-	jwk, err := g.PublicJWK(ctx)
+	set, _, err := g.GenerateKeySet(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	output, err := json.Marshal(map[string][]any{
-		"keys": {jwk},
-	})
-	return output, err
+	return set.JSONPublic(ctx)
 }
 
 func NewAuthority(issuer string, expiration time.Duration, pub ed25519.PublicKey, priv ed25519.PrivateKey) (*Authority, error) {
