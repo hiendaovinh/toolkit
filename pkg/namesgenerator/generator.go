@@ -2,7 +2,6 @@ package namesgenerator
 
 import (
 	"math/rand"
-	"time"
 )
 
 // belongs to https://github.com/moby/moby/tree/master/pkg/namesgenerator
@@ -835,6 +834,5 @@ var (
 )
 
 func GetRandomName() (string, string) {
-	rand.Seed(time.Now().UnixNano())
 	return left[rand.Intn(len(left))], right[rand.Intn(len(right))]
 }
