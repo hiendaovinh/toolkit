@@ -9,7 +9,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/MicahParks/jwkset"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
@@ -45,10 +46,15 @@ func (g *Authority) kid() string {
 }
 
 func (g *Authority) IssueToken(ctx context.Context, subject string, audience []string, scopes []string) (*JWTClaims, string, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return nil, "", err
+	}
+
 	claims := &JWTClaims{
 		Scopes: scopes,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ID:        uuid.New().String(),
+			ID:        id.String(),
 			Issuer:    g.issuer,
 			Subject:   subject,
 			Audience:  audience,
@@ -65,17 +71,20 @@ func (g *Authority) IssueToken(ctx context.Context, subject string, audience []s
 	return claims, tokenSigned, err
 }
 
-func (g *Authority) PublicJWK(ctx context.Context) (*JWK, error) {
-	x := base64.RawURLEncoding.EncodeToString(g.pub)
+func (g *Authority) PublicJWK(ctx context.Context) (jwkset.JWK, error) {
 	id := g.kid()
 
-	return &JWK{
-		Alg:   "EdDSA",
-		Type:  "OKP",
-		Curve: "Ed25519",
-		ID:    id,
-		X:     x,
-	}, nil
+	metadata := jwkset.JWKMetadataOptions{
+		ALG: jwkset.AlgEdDSA,
+		KID: id,
+		USE: jwkset.UseSig,
+	}
+	options := jwkset.JWKOptions{
+		Metadata: metadata,
+	}
+
+	foo, err := jwkset.NewJWKFromKey(g.pub, options)
+	return foo, err
 }
 
 func (g *Authority) PublicJWKS(ctx context.Context) ([]byte, error) {

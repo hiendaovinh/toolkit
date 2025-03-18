@@ -1,11 +1,14 @@
 package guard_test
 
 import (
+	"context"
 	"errors"
 	"sync"
 	"testing"
 
-	"github.com/MicahParks/keyfunc"
+	"github.com/MicahParks/jwkset"
+	"github.com/MicahParks/keyfunc/v3"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/hiendaovinh/toolkit/pkg/guard"
 	"github.com/ory/ladon"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +18,7 @@ type authzFake struct {
 	registry *sync.Map
 }
 
-func (authz *authzFake) IsAllowed(r *ladon.Request) error {
+func (authz *authzFake) IsAllowed(ctx context.Context, r *ladon.Request) error {
 	x, ok := authz.registry.Load(r.Subject)
 	if !ok {
 		return errors.New("not allowed")
@@ -44,7 +47,7 @@ func (authz *authzFake) IsAllowed(r *ladon.Request) error {
 }
 
 type test struct {
-	authn *keyfunc.JWKS
+	authn jwt.Keyfunc
 	authz *authzFake
 }
 
@@ -54,8 +57,12 @@ func beforeEach(t *testing.T) *test {
 		"bar": {"qux"},
 	})
 
+	given := jwkset.NewMemoryStorage()
+	x, err := keyfunc.New(keyfunc.Options{Storage: given})
+	assert.NoError(t, err)
+
 	return &test{
-		&keyfunc.JWKS{},
+		x.Keyfunc,
 		&authzFake{&registry},
 	}
 }

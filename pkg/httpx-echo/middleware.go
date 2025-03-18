@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/hiendaovinh/toolkit/pkg/auth"
 	"github.com/hiendaovinh/toolkit/pkg/errorx"
 	"github.com/hiendaovinh/toolkit/pkg/jwtx"

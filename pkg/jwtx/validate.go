@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func ValidateToken(ctx context.Context, tokenStr string, fnc jwt.Keyfunc) (*jwt.Token, *JWTClaims, error) {
