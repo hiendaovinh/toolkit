@@ -7,6 +7,7 @@ toolchain go1.24.1
 require (
 	github.com/MicahParks/jwkset v0.8.0
 	github.com/MicahParks/keyfunc/v3 v3.3.10
+	github.com/aarondl/opt v0.0.0-20240623220848-083f18ab9536
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/validator/v10 v10.25.0
 	github.com/go-redis/cache/v9 v9.0.0
@@ -28,6 +29,7 @@ require (
 )
 
 require (
+	github.com/aarondl/json v0.0.0-20221020222930-8b0db17ef1bf // indirect
 	github.com/bytedance/sonic v1.13.1 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

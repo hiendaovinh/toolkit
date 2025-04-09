@@ -2,12 +2,9 @@ package httpx
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/hiendaovinh/toolkit/pkg/auth"
 	"github.com/hiendaovinh/toolkit/pkg/errorx"
 	"github.com/hiendaovinh/toolkit/pkg/limiter"
@@ -60,29 +57,6 @@ func abortErrorWithStatusJSON(c echo.Context, err error, code int) error {
 	}
 
 	return c.JSON(code, &body{Code: target.Code(), Message: message})
-}
-
-type ValidatorStruct interface {
-	Struct(s any) error
-}
-
-func ValidateStruct(c echo.Context, v ValidatorStruct, s any) error {
-	err := v.Struct(s)
-	if err == nil {
-		return nil
-	}
-
-	validationErrors, ok := err.(validator.ValidationErrors)
-	if !ok {
-		return err
-	}
-
-	fields := []string{}
-	for _, f := range validationErrors {
-		fields = append(fields, f.StructField())
-	}
-
-	return fmt.Errorf("invalid %s", strings.Join(fields, ", "))
 }
 
 func RestAbort(c echo.Context, v any, err error) error {

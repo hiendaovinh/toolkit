@@ -37,6 +37,10 @@ github.com/MicahParks/jwkset v0.8.0 h1:jHtclI38Gibmu17XMI6+6/UB59srp58pQVxePHRK5
 github.com/MicahParks/jwkset v0.8.0/go.mod h1:fVrj6TmG1aKlJEeceAz7JsXGTXEn72zP1px3us53JrA=
 github.com/MicahParks/keyfunc/v3 v3.3.10 h1:JtEGE8OcNeI297AMrR4gVXivV8fyAawFUMkbwNreJRk=
 github.com/MicahParks/keyfunc/v3 v3.3.10/go.mod h1:1TEt+Q3FO7Yz2zWeYO//fMxZMOiar808NqjWQQpBPtU=
+github.com/aarondl/json v0.0.0-20221020222930-8b0db17ef1bf h1:+edM69bH/X6JpYPmJYBRLanAMe1V5yRXYU3hHUovGcE=
+github.com/aarondl/json v0.0.0-20221020222930-8b0db17ef1bf/go.mod h1:FZqLhJSj2tg0ZN48GB1zvj00+ZYcHPqgsC7yzcgCq6k=
+github.com/aarondl/opt v0.0.0-20240623220848-083f18ab9536 h1:vhpjulzH5Tr4S3uJ3Y/9pNL481kPq5ERj13ceAW0/uE=
+github.com/aarondl/opt v0.0.0-20240623220848-083f18ab9536/go.mod h1:l4/5NZtYd/SIohsFhaJQQe+sPOTG22furpZ5FvcYOzk=
 github.com/bsm/ginkgo/v2 v2.12.0 h1:Ny8MWAHyOepLGlLKYmXG4IEkioBysk6GpaRTLC8zwWs=
 github.com/bsm/ginkgo/v2 v2.12.0/go.mod h1:SwYbGRRDovPVboqFv0tPTcG1sN61LM1Z4ARdbAV9g4c=
 github.com/bsm/gomega v1.27.10 h1:yeMWxP2pV2fG3FgAODIY8EiRE3dy0aeFYt4l7wh6yKA=
