@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/hiendaovinh/toolkit/pkg/arr"
+	"github.com/hiendaovinh/toolkit/v2/pkg/arr"
 	"github.com/stretchr/testify/assert"
 )
 

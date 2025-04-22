@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/hiendaovinh/toolkit/pkg/cert"
+	"github.com/hiendaovinh/toolkit/v2/pkg/cert"
 	hydra "github.com/ory/hydra-client-go"
 	"github.com/stretchr/testify/assert"
 )

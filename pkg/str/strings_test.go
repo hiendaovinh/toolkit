@@ -3,7 +3,7 @@ package str_test
 import (
 	"testing"
 
-	"github.com/hiendaovinh/toolkit/pkg/str"
+	"github.com/hiendaovinh/toolkit/v2/pkg/str"
 	"github.com/stretchr/testify/assert"
 )
 

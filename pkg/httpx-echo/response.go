@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/hiendaovinh/toolkit/pkg/auth"
-	"github.com/hiendaovinh/toolkit/pkg/errorx"
-	"github.com/hiendaovinh/toolkit/pkg/limiter"
+	"github.com/hiendaovinh/toolkit/v2/pkg/auth"
+	"github.com/hiendaovinh/toolkit/v2/pkg/errorx"
+	"github.com/hiendaovinh/toolkit/v2/pkg/limiter"
 	"github.com/labstack/echo/v4"
 )
 

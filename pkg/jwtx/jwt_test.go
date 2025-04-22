@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/hiendaovinh/toolkit/pkg/jwtx"
+	"github.com/hiendaovinh/toolkit/v2/pkg/jwtx"
 	"github.com/stretchr/testify/assert"
 )
 

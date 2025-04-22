@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-	"github.com/hiendaovinh/toolkit/pkg/jwtx"
+	"github.com/hiendaovinh/toolkit/v2/pkg/jwtx"
 )
 
 type ctxKey string

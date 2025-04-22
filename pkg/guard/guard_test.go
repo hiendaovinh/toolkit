@@ -9,7 +9,7 @@ import (
 	"github.com/MicahParks/jwkset"
 	"github.com/MicahParks/keyfunc/v3"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/hiendaovinh/toolkit/pkg/guard"
+	"github.com/hiendaovinh/toolkit/v2/pkg/guard"
 	"github.com/ory/ladon"
 	"github.com/stretchr/testify/assert"
 )

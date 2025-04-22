@@ -1,4 +1,4 @@
-module github.com/hiendaovinh/toolkit
+module github.com/hiendaovinh/toolkit/v2
 
 go 1.23.0
 
