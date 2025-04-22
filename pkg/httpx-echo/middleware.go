@@ -20,7 +20,8 @@ import (
 )
 
 type Guard interface {
-	AuthenticateJWT(ctx context.Context, tokenStr string) (*jwt.Token, *jwtx.JWTClaims, error)
+	NewClaims() jwtx.RegisteredClaims
+	AuthenticateJWT(ctx context.Context, tokenStr string, claims jwtx.RegisteredClaims) (*jwt.Token, error)
 }
 
 func Authn(guard Guard) echo.MiddlewareFunc {
@@ -41,7 +42,8 @@ func Authn(guard Guard) echo.MiddlewareFunc {
 				return next(c)
 			}
 
-			_, claims, err := guard.AuthenticateJWT(c.Request().Context(), token)
+			claims := guard.NewClaims()
+			_, err := guard.AuthenticateJWT(c.Request().Context(), token, claims)
 			if err != nil {
 				// although it's a client error, we don't want to detailed information
 				//nolint:errcheck

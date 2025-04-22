@@ -10,20 +10,21 @@ import (
 )
 
 type Guard struct {
-	authn jwt.Keyfunc
-	authz AuthChecker
+	authn         jwt.Keyfunc
+	authz         AuthChecker
+	claimsFactory func() jwtx.RegisteredClaims
 }
 
 type AuthChecker interface {
 	IsAllowed(ctx context.Context, r *ladon.Request) error
 }
 
-func NewGuard(authn jwt.Keyfunc, authz AuthChecker) (*Guard, error) {
+func NewGuard(authn jwt.Keyfunc, authz AuthChecker, claimsFactory func() jwtx.RegisteredClaims) (*Guard, error) {
 	if authn == nil || authz == nil {
 		return nil, errors.New("invalid authn or authz")
 	}
 
-	return &Guard{authn, authz}, nil
+	return &Guard{authn, authz, claimsFactory}, nil
 }
 
 func (guard *Guard) Allow(sub string, resource string, action string, ctx map[string]any) error {
@@ -37,6 +38,10 @@ func (guard *Guard) Allow(sub string, resource string, action string, ctx map[st
 	return guard.authz.IsAllowed(context.TODO(), r)
 }
 
-func (guard *Guard) AuthenticateJWT(ctx context.Context, tokenStr string) (*jwt.Token, *jwtx.JWTClaims, error) {
-	return jwtx.ValidateToken(ctx, tokenStr, guard.authn)
+func (guard *Guard) AuthenticateJWT(ctx context.Context, tokenStr string, claims jwtx.RegisteredClaims) (*jwt.Token, error) {
+	return jwtx.ValidateToken(ctx, tokenStr, guard.authn, claims)
+}
+
+func (guard *Guard) NewClaims() jwtx.RegisteredClaims {
+	return guard.claimsFactory()
 }

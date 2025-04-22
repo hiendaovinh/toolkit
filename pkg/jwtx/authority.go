@@ -22,15 +22,18 @@ type JWK struct {
 	X     string `json:"x"`
 }
 
-type JWTClaims struct {
-	Scopes []string `json:"scopes,omitempty"`
+type DefaultJWTClaims struct {
 	jwt.RegisteredClaims
 }
 
-var (
-	ErrUnableToParse = errors.New("unable to parse")
-	ErrInvalidClaims = errors.New("invalid token claims")
-)
+func (c *DefaultJWTClaims) Register(cs jwt.RegisteredClaims) RegisteredClaims {
+	c.RegisteredClaims = cs
+	return c
+}
+
+var _ RegisteredClaims = (*DefaultJWTClaims)(nil)
+
+var ErrInvalid = errors.New("invalid token")
 
 type Authority struct {
 	issuer     string
@@ -45,30 +48,36 @@ func (g *Authority) kid() string {
 	return base64.RawURLEncoding.EncodeToString(hash[:])
 }
 
-func (g *Authority) IssueToken(ctx context.Context, subject string, audience []string, scopes []string) (*JWTClaims, string, error) {
+type RegisteredClaims interface {
+	jwt.Claims
+	Register(jwt.RegisteredClaims) RegisteredClaims
+}
+
+func (g *Authority) IssueToken(ctx context.Context, subject string, audience []string, claims RegisteredClaims) (string, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return nil, "", err
+		return "", err
 	}
 
-	claims := &JWTClaims{
-		Scopes: scopes,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ID:        id.String(),
-			Issuer:    g.issuer,
-			Subject:   subject,
-			Audience:  audience,
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(g.expiration)),
-			NotBefore: jwt.NewNumericDate(time.Now()),
-		},
-	}
+	claims = claims.Register(jwt.RegisteredClaims{
+		ID:        id.String(),
+		Issuer:    g.issuer,
+		Subject:   subject,
+		Audience:  audience,
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(g.expiration)),
+		NotBefore: jwt.NewNumericDate(time.Now()),
+	})
 
 	token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, claims)
 	token.Header["kid"] = g.kid()
 
 	tokenSigned, err := token.SignedString(g.priv)
-	return claims, tokenSigned, err
+	if err != nil {
+		return "", err
+	}
+
+	return tokenSigned, nil
 }
 
 func (g *Authority) PublicJWK(ctx context.Context) (jwkset.JWK, error) {

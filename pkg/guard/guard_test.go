@@ -69,7 +69,7 @@ func beforeEach(t *testing.T) *test {
 
 func TestGuardAuthz(t *testing.T) {
 	test := beforeEach(t)
-	guard, err := guard.NewGuard(test.authn, test.authz)
+	guard, err := guard.NewGuard(test.authn, test.authz, nil)
 	assert.NoError(t, err)
 
 	sub := "foo"

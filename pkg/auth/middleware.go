@@ -19,8 +19,12 @@ var (
 var ErrInvalidSession = errors.New("invalid session")
 
 // context public setters are not recommended but used here to reuse the logic among 2 packages of middleware
-func WithAuthClaims(ctx context.Context, v *jwtx.JWTClaims) context.Context {
-	subject := v.Subject
+func WithAuthClaims(ctx context.Context, v jwtx.RegisteredClaims) context.Context {
+	subject, err := v.GetSubject()
+	if err != nil {
+		return context.WithValue(ctx, ctxKeyAuthClaims, v)
+	}
+
 	id, err := uuid.Parse(subject)
 	if err != nil {
 		return context.WithValue(ctx, ctxKeyAuthClaims, v)
@@ -43,12 +47,17 @@ func ResolveJWT(ctx context.Context) string {
 }
 
 func ResolveSubject(ctx context.Context) string {
-	claims, ok := ctx.Value(ctxKeyAuthClaims).(*jwtx.JWTClaims)
+	claims, ok := ctx.Value(ctxKeyAuthClaims).(jwtx.RegisteredClaims)
 	if !ok {
 		return ""
 	}
 
-	return claims.Subject
+	sub, err := claims.GetSubject()
+	if err != nil {
+		return ""
+	}
+
+	return sub
 }
 
 func ResolveSubjectUUID(ctx context.Context) (uuid.UUID, bool) {
