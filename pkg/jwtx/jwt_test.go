@@ -83,7 +83,7 @@ func TestIssueToken(t *testing.T) {
 
 type CustomJWTClaims struct {
 	jwt.RegisteredClaims
-	Name   string   `json:"string"`
+	Name   string   `json:"name"`
 	Scopes []string `json:"scopes"`
 }
 
