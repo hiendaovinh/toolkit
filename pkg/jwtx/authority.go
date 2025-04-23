@@ -5,9 +5,7 @@ import (
 	"crypto/ed25519"
 	"crypto/sha256"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/MicahParks/jwkset"
@@ -65,9 +63,6 @@ func (g *Authority) IssueToken(ctx context.Context, subject string, audience []s
 			NotBefore: jwt.NewNumericDate(time.Now()),
 		},
 	}
-
-	x, err := json.Marshal(&claims)
-	log.Println(string(x), err)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, claims)
 	token.Header["kid"] = g.kid()
