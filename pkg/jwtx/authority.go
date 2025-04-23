@@ -5,7 +5,9 @@ import (
 	"crypto/ed25519"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/MicahParks/jwkset"
@@ -23,8 +25,8 @@ type JWK struct {
 }
 
 type JWTClaims struct {
-	Scopes []string `json:"scopes,omitempty"`
 	jwt.RegisteredClaims
+	Metadata map[string]any `json:"metadata,omitempty"`
 }
 
 var (
@@ -45,14 +47,14 @@ func (g *Authority) kid() string {
 	return base64.RawURLEncoding.EncodeToString(hash[:])
 }
 
-func (g *Authority) IssueToken(ctx context.Context, subject string, audience []string, scopes []string) (*JWTClaims, string, error) {
+func (g *Authority) IssueToken(ctx context.Context, subject string, audience []string, metadata map[string]any) (*JWTClaims, string, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
 		return nil, "", err
 	}
 
 	claims := &JWTClaims{
-		Scopes: scopes,
+		Metadata: metadata,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID:        id.String(),
 			Issuer:    g.issuer,
@@ -63,6 +65,9 @@ func (g *Authority) IssueToken(ctx context.Context, subject string, audience []s
 			NotBefore: jwt.NewNumericDate(time.Now()),
 		},
 	}
+
+	x, err := json.Marshal(&claims)
+	log.Println(string(x), err)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, claims)
 	token.Header["kid"] = g.kid()

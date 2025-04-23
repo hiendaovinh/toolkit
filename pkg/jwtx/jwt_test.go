@@ -10,7 +10,6 @@ import (
 
 	"github.com/hiendaovinh/toolkit/pkg/jwtx"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/exp/slices"
 )
 
 func TestIssueToken(t *testing.T) {
@@ -18,7 +17,14 @@ func TestIssueToken(t *testing.T) {
 	expiration := time.Second * 10
 	subject := "subject"
 	audience := []string{"audience"}
-	scopes := []string{"foo", "bar"}
+	meta := map[string]any{
+		"foo": 1,
+		"bar": "baz",
+		"qux": map[int]bool{
+			1: true,
+			2: false,
+		},
+	}
 
 	seed := int64(42) // Deterministic seed for testing.
 	randSource := rand.New(rand.NewSource(seed))
@@ -47,7 +53,7 @@ func TestIssueToken(t *testing.T) {
 	_, jwks, err := a.GenerateKeySet(context.Background())
 	assert.NoError(t, err)
 
-	_, tokenStr, err := a.IssueToken(context.Background(), subject, audience, scopes)
+	_, tokenStr, err := a.IssueToken(context.Background(), subject, audience, meta)
 	assert.Equal(t, err, nil, "should be successful")
 
 	_, claims, err := jwtx.ValidateToken(context.Background(), tokenStr, jwks.Keyfunc)
@@ -56,10 +62,15 @@ func TestIssueToken(t *testing.T) {
 	assert.Equal(t, claims.Issuer, issuer, "mismatched issuers")
 	assert.Equal(t, claims.Subject, subject, "mismatched subject")
 	assert.Equal(t, []string(claims.Audience), audience, "mismatched audience")
-	assert.Equal(t, claims.Scopes, scopes, "mismatched scopes")
-	assert.True(t, slices.Contains(claims.Scopes, "foo"))
-	assert.True(t, slices.Contains(claims.Scopes, "bar"))
-	assert.False(t, slices.Contains(claims.Scopes, "qux"))
+	assert.NotEqual(t, meta, claims.Metadata, "mismatched metadata") // maps are always encoded as map[string]any, no matter what is the original values
+	assert.Equal(t, map[string]any{
+		"foo": float64(1),
+		"bar": "baz",
+		"qux": map[string]any{
+			"1": true,
+			"2": false,
+		},
+	}, claims.Metadata)
 
 	assert.LessOrEqual(t, time.Until(claims.ExpiresAt.Time), expiration, "invalid expiration")
 }
